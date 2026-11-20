@@ -12,6 +12,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toSt
 const COOKIE_NAME = "roboai_session";
 const sessions = new Map();
 const requestWindows = new Map();
+const ipRequestWindows = new Map();
 
 const agents = {
   lead: { name:"Lead", description:"Plans features and coordinates the work.", system:"You are RoboAI Lead, an expert Roblox game-development project lead. Clarify goals when essential, break features into practical steps, identify dependencies, and give concise actionable plans. Roblox uses Luau. Never claim you edited Studio or ran a test unless a connected tool actually did it." },
@@ -59,16 +60,22 @@ app.use((req, res, next) => {
 function rateLimit(req, res, next) {
   const now = Date.now();
   const key = req.roboSessionId;
+  const ip = String(req.ip || "unknown").slice(0, 100);
   const recent = (requestWindows.get(key) || []).filter(t => now - t < 60000);
   if (recent.length >= 10) return res.status(429).json({ error: "You've reached the chat limit for this minute. Please wait a little and try again." });
+  const ipRecent = (ipRequestWindows.get(ip) || []).filter(t => now - t < 10 * 60 * 1000);
+  if (ipRecent.length >= 40) return res.status(429).json({ error: "This network has reached its temporary chat limit. Please try again later." });
   recent.push(now);
+  ipRecent.push(now);
   requestWindows.set(key, recent);
+  ipRequestWindows.set(ip, ipRecent);
   next();
 }
 function trimOldData() {
   const cutoff = Date.now() - 24 * 60 * 60 * 1000;
   for (const [id, session] of sessions) if (session.lastSeen < cutoff) sessions.delete(id);
   for (const [id, times] of requestWindows) if (!sessions.has(id)) requestWindows.delete(id);
+  for (const [ip, times] of ipRequestWindows) if (!times.some(t => Date.now() - t < 10 * 60 * 1000)) ipRequestWindows.delete(ip);
   while (sessions.size > 3000) sessions.delete(sessions.keys().next().value);
 }
 setInterval(trimOldData, 15 * 60 * 1000).unref();
