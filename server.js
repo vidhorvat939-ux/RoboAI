@@ -5,8 +5,9 @@ const path = require("node:path");
 const app = express();
 const PORT = Number(process.env.PORT || 4317);
 const HOST = "0.0.0.0";
-const XAI_API_KEY = process.env.XAI_API_KEY || "";
-const XAI_MODEL = process.env.XAI_MODEL || "grok-4.7";
+const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || "";
+const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN || "";
+const CLOUDFLARE_MODEL = process.env.CLOUDFLARE_MODEL || "@cf/zai-org/glm-4.7-flash";
 const OLLAMA_URL = (process.env.OLLAMA_URL || "http://127.0.0.1:11434").replace(/\/$/, "");
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString("hex");
 const COOKIE_NAME = "roboai_session";
@@ -89,11 +90,12 @@ async function ollamaModels() {
   } catch { return []; }
 }
 app.get("/api/health", async (_req, res) => {
-  const models = XAI_API_KEY ? [XAI_MODEL] : await ollamaModels();
+  const cloudflareConfigured = Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN);
+  const models = cloudflareConfigured ? [CLOUDFLARE_MODEL] : await ollamaModels();
   res.json({
     ok: true,
-    aiConfigured: Boolean(XAI_API_KEY || models.length),
-    provider: XAI_API_KEY ? "grok" : "ollama",
+    aiConfigured: Boolean(cloudflareConfigured || models.length),
+    provider: cloudflareConfigured ? "cloudflare" : "ollama",
     models,
     agents: Object.keys(agents).length
   });
@@ -121,28 +123,36 @@ app.get("/api/chats/:id", (req, res) => {
   res.json(chat);
 });
 
-async function askGrok(agent, history, prompt) {
-  const response = await fetch("https://api.x.ai/v1/responses", {
+async function askCloudflare(agent, history, prompt) {
+  const endpoint = "https://api.cloudflare.com/client/v4/accounts/" +
+    encodeURIComponent(CLOUDFLARE_ACCOUNT_ID) + "/ai/run/" + CLOUDFLARE_MODEL;
+  const response = await fetch(endpoint, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + XAI_API_KEY },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + CLOUDFLARE_API_TOKEN
+    },
     body: JSON.stringify({
-      model: XAI_MODEL,
-      input: agents[agent].system + "\n\nYou are RoboAI, a Roblox game-development assistant. Give practical, accurate answers. Never claim to have edited Roblox Studio or run a test unless a connected local tool actually did it.\n\n" + history + "\n\nUser: " + prompt
+      messages: [
+        { role: "system", content: agents[agent].system + "\\n\\nYou are RoboAI, a Roblox game-development assistant. Give practical, accurate answers. Never claim to have edited Roblox Studio or run a test unless a connected local tool actually did it." },
+        { role: "user", content: (history ? "Previous conversation:\\n" + history + "\\n\\n" : "") + "User: " + prompt }
+      ],
+      max_tokens: 2048,
+      temperature: 0.35
     }),
     signal: AbortSignal.timeout(120000)
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const detail = data.error?.message || "Grok API returned HTTP " + response.status;
+  if (!response.ok || data.success === false) {
+    const detail = (data.errors || []).map(item => item.message).filter(Boolean).join("; ") ||
+      data.error?.message || "Cloudflare Workers AI returned HTTP " + response.status;
     throw new Error(detail.slice(0, 450));
   }
-  const answer = data.output_text || (data.output || [])
-    .filter(item => item.type === "message")
-    .flatMap(item => item.content || [])
-    .filter(part => part.type === "output_text" || part.type === "text")
-    .map(part => part.text || "")
-    .join("\n").trim();
-  if (!answer) throw new Error("Grok returned an empty response. Please try again.");
+  const result = data.result || {};
+  const answer = result.response || result.output_text ||
+    result.choices?.[0]?.message?.content || result.text ||
+    (typeof result === "string" ? result : "");
+  if (!answer) throw new Error("Cloudflare AI returned an empty response. Please try again.");
   return answer;
 }
 async function askOllama(agent, model, history, prompt) {
@@ -171,12 +181,12 @@ app.post("/api/chat", rateLimit, async (req, res) => {
   try {
     let answer;
     let usedModel;
-    if (XAI_API_KEY) {
-      answer = await askGrok(agent, history, prompt);
-      usedModel = XAI_MODEL;
+    if (CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN) {
+      answer = await askCloudflare(agent, history, prompt);
+      usedModel = CLOUDFLARE_MODEL;
     } else {
       const available = await ollamaModels();
-      if (!available.length) return res.status(503).json({ error: "Cloud AI is not configured yet. The site owner must add XAI_API_KEY in the hosting dashboard." });
+      if (!available.length) return res.status(503).json({ error: "Cloud AI is not configured yet. The site owner must add CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in the hosting dashboard." });
       usedModel = available.includes(model) ? model : available[0];
       answer = await askOllama(agent, usedModel, history, prompt);
     }
@@ -195,5 +205,5 @@ app.post("/api/chat", rateLimit, async (req, res) => {
 
 app.listen(PORT, HOST, () => {
   console.log("RoboAI listening on " + HOST + ":" + PORT);
-  console.log(XAI_API_KEY ? "Cloud AI provider: Grok" : "Cloud AI provider: not configured (local Ollama fallback only)");
+  console.log(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN ? "Cloud AI provider: Cloudflare Workers AI" : "Cloud AI provider: not configured (local Ollama fallback only)");
 });
