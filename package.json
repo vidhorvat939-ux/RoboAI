@@ -12,6 +12,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "express": "^4.21.2"
   }
 }
