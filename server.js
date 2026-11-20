@@ -5,8 +5,8 @@ const path = require("node:path");
 const app = express();
 const PORT = Number(process.env.PORT || 4317);
 const HOST = "0.0.0.0";
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const XAI_API_KEY = process.env.XAI_API_KEY || "";
+const XAI_MODEL = process.env.XAI_MODEL || "grok-4.7";
 const OLLAMA_URL = (process.env.OLLAMA_URL || "http://127.0.0.1:11434").replace(/\/$/, "");
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString("hex");
 const COOKIE_NAME = "roboai_session";
@@ -89,11 +89,11 @@ async function ollamaModels() {
   } catch { return []; }
 }
 app.get("/api/health", async (_req, res) => {
-  const models = GEMINI_API_KEY ? [GEMINI_MODEL] : await ollamaModels();
+  const models = XAI_API_KEY ? [XAI_MODEL] : await ollamaModels();
   res.json({
     ok: true,
-    aiConfigured: Boolean(GEMINI_API_KEY || models.length),
-    provider: GEMINI_API_KEY ? "gemini" : "ollama",
+    aiConfigured: Boolean(XAI_API_KEY || models.length),
+    provider: XAI_API_KEY ? "grok" : "ollama",
     models,
     agents: Object.keys(agents).length
   });
@@ -121,27 +121,28 @@ app.get("/api/chats/:id", (req, res) => {
   res.json(chat);
 });
 
-async function askGemini(agent, history, prompt) {
-  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
+async function askGrok(agent, history, prompt) {
+  const response = await fetch("https://api.x.ai/v1/responses", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY, "Api-Revision": "2026-05-20" },
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + XAI_API_KEY },
     body: JSON.stringify({
-      model: GEMINI_MODEL,
-      system_instruction: agents[agent].system + "\n\nYou are RoboAI, a Roblox game-development assistant. Give practical, accurate answers. Never claim to have edited Roblox Studio or run a test unless a connected local tool actually did it.",
-      input: history + "\n\nUser: " + prompt + "\nAssistant:",
-      store: false,
-      generation_config: { temperature: 0.35, max_output_tokens: 2500 }
+      model: XAI_MODEL,
+      input: agents[agent].system + "\n\nYou are RoboAI, a Roblox game-development assistant. Give practical, accurate answers. Never claim to have edited Roblox Studio or run a test unless a connected local tool actually did it.\n\n" + history + "\n\nUser: " + prompt
     }),
     signal: AbortSignal.timeout(120000)
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const detail = data.error?.message || "Gemini API returned HTTP " + response.status;
+    const detail = data.error?.message || "Grok API returned HTTP " + response.status;
     throw new Error(detail.slice(0, 450));
   }
-  const answer = (data.steps || []).filter(step => step.type === "model_output")
-    .flatMap(step => step.content || []).filter(part => part.type === "text").map(part => part.text).join("\n").trim();
-  if (!answer) throw new Error("The AI returned an empty response. Please try again.");
+  const answer = data.output_text || (data.output || [])
+    .filter(item => item.type === "message")
+    .flatMap(item => item.content || [])
+    .filter(part => part.type === "output_text" || part.type === "text")
+    .map(part => part.text || "")
+    .join("\n").trim();
+  if (!answer) throw new Error("Grok returned an empty response. Please try again.");
   return answer;
 }
 async function askOllama(agent, model, history, prompt) {
@@ -170,12 +171,12 @@ app.post("/api/chat", rateLimit, async (req, res) => {
   try {
     let answer;
     let usedModel;
-    if (GEMINI_API_KEY) {
-      answer = await askGemini(agent, history, prompt);
-      usedModel = GEMINI_MODEL;
+    if (XAI_API_KEY) {
+      answer = await askGrok(agent, history, prompt);
+      usedModel = XAI_MODEL;
     } else {
       const available = await ollamaModels();
-      if (!available.length) return res.status(503).json({ error: "Cloud AI is not configured yet. The site owner must add GEMINI_API_KEY in the hosting dashboard." });
+      if (!available.length) return res.status(503).json({ error: "Cloud AI is not configured yet. The site owner must add XAI_API_KEY in the hosting dashboard." });
       usedModel = available.includes(model) ? model : available[0];
       answer = await askOllama(agent, usedModel, history, prompt);
     }
@@ -194,5 +195,5 @@ app.post("/api/chat", rateLimit, async (req, res) => {
 
 app.listen(PORT, HOST, () => {
   console.log("RoboAI listening on " + HOST + ":" + PORT);
-  console.log(GEMINI_API_KEY ? "Cloud AI provider: Gemini" : "Cloud AI provider: not configured (local Ollama fallback only)");
+  console.log(XAI_API_KEY ? "Cloud AI provider: Grok" : "Cloud AI provider: not configured (local Ollama fallback only)");
 });
