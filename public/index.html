@@ -35,7 +35,7 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}.top{height:65p
   </div>
   <div class="section-label">RECENT CHATS</div>
   <div class="chat-history" id="history"><div class="empty">Your saved chats appear here.</div></div>
-  <div class="side-bottom"><div class="status" id="connection"><i class="dot"></i><span>Checking cloud AI…</span></div><div style="margin-top:8px">Cloud AI · Separate chats for each browser</div></div>
+  <div class="side-bottom"><div class="status" id="connection"><i class="dot"></i><span>Checking cloud AI…</span></div><div style="margin-top:8px">Cloudflare AI · Free daily quota · Separate chats per browser</div></div>
 </aside>
 <main>
   <header class="top"><div class="top-title" id="currentTitle">New conversation</div><div class="top-right"><button class="model" id="studioConnect" type="button">Connect Studio</button><span>AI MODEL</span><select class="model" id="model"><option value="">Loading cloud model…</option></select></div></header>
@@ -51,7 +51,7 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}.top{height:65p
       <textarea id="prompt" placeholder="Describe a Roblox feature or paste your Luau code…" rows="2"></textarea>
       <div class="composer-bottom"><span id="agentHint">Lead · planning & coordination</span><button class="send" id="send">Send ↑</button></div>
     </div>
-    <div class="note">RoboAI uses cloud AI. Chats are separated by browser and may be temporarily stored in server memory. Don't share passwords or sensitive information. Always review scripts before using them.</div>
+    <div class="note">RoboAI uses Cloudflare Workers AI when configured. Free usage has a daily quota and may pause when it is reached. Chats are separated by browser and may be temporarily stored in server memory. Don't share passwords or sensitive information. Always review scripts before using them.</div>
   </div>
 </main>
 </div>
@@ -64,7 +64,7 @@ async function api(url,options={}){const r=await fetch(url,{headers:{"Content-Ty
 async function refreshHealth(){
   try{
     const h=await api("/api/health");const s=$("connection");s.classList.toggle("ok",h.aiConfigured);
-    s.querySelector("span").textContent=h.aiConfigured?(h.provider==="grok"?"Grok AI ready":"Local Ollama ready"):"AI setup required";
+    s.querySelector("span").textContent=h.aiConfigured?(h.provider==="cloudflare"?"Cloudflare AI ready":"Local Ollama ready"):"AI setup required";
     const select=$("model");select.innerHTML="";
     (h.models||[]).forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=m;select.appendChild(o)});
     if(!h.models||!h.models.length){const o=document.createElement("option");o.value="";o.textContent="AI not configured";select.appendChild(o)}
