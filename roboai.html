@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RoboAI: an AI development team for Roblox Studio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#05060d;--panel:#0c0e1b;--line:#ffffff1a;--tx:#e9ecff;--mute:#8d93b8;--blue:#4d8dff;--vio:#a35cff;--cy:#5ce1ff;--g:linear-gradient(120deg,#4d8dff,#a35cff);
+color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 17px/1.6 "Space Grotesk",system-ui,sans-serif;overflow-x:hidden}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--cy);outline-offset:3px;border-radius:6px}
+#bg{position:fixed;inset:0;z-index:-1;background:
+radial-gradient(60% 50% at 20% 0%,#4d8dff2e,transparent 70%),radial-gradient(50% 45% at 85% 10%,#a35cff30,transparent 70%),var(--bg)}
+#bg::after{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff0a 1px,transparent 1px),linear-gradient(90deg,#ffffff0a 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(70% 60% at 50% 20%,#000,transparent);animation:drift 20s linear infinite}
+@keyframes drift{to{background-position:56px 56px}}
+nav{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:14px clamp(18px,4vw,56px);backdrop-filter:blur(14px);background:#05060dbb;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:-.02em}
+.logo i{width:26px;height:26px;border-radius:8px;background:var(--g);display:grid;place-items:center;box-shadow:0 0 22px #4d8dff99}
+.logo i::after{content:"";width:10px;height:10px;border:2px solid #fff;border-radius:3px}
+nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0;color:var(--mute);font-size:15px}
+nav ul a:hover{color:var(--tx)}
+.btn{display:inline-block;padding:12px 22px;border-radius:12px;font-weight:500;border:1px solid var(--line);transition:.25s}
+.btn.pri{background:var(--g);border-color:transparent;box-shadow:0 0 34px #6b6bff66}
+.btn.pri:hover{box-shadow:0 0 54px #a35cffaa;transform:translateY(-2px)}
+.btn.sec:hover{background:#ffffff0f}
+section{padding:110px clamp(18px,5vw,64px);max-width:1280px;margin:auto}
+h1{font-size:clamp(40px,7vw,92px);line-height:1;letter-spacing:-.04em;margin:0 0 22px;font-weight:700}
+h1 span{background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:clamp(30px,4.4vw,54px);line-height:1.05;letter-spacing:-.03em;margin:0 0 16px;max-width:16ch}
+p.lead{color:var(--mute);max-width:56ch;font-size:19px;margin:0 0 30px}
+.hero{text-align:center;padding-top:150px;padding-bottom:40px}
+.hero p.lead{margin-inline:auto}
+.hero .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-size:14px;color:var(--mute);margin-bottom:26px;background:#ffffff08}
+.pill b{width:8px;height:8px;border-radius:50%;background:var(--cy);box-shadow:0 0 12px var(--cy);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+/* showcase */
+.stage{perspective:1600px;max-width:1180px;margin:30px auto 0;padding:0 clamp(10px,3vw,40px);position:relative}
+.rig{transform:rotateX(var(--rx,16deg)) rotateY(var(--ry,-6deg)) translateY(var(--ty,0px)) scale(var(--sc,.96));transform-style:preserve-3d;transition:transform .12s linear;position:relative}
+.glow{position:absolute;inset:8% 6%;background:var(--g);filter:blur(110px);opacity:.38;z-index:-1;animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.6;transform:scale(1.06)}}
+.win{background:linear-gradient(180deg,#10132a,#090b17);border:1px solid #ffffff26;border-radius:18px;overflow:hidden;box-shadow:0 40px 120px #000b,0 0 0 1px #4d8dff22 inset}
+.bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--mute)}
+.bar i{width:11px;height:11px;border-radius:50%;background:#ffffff26}
+.bar span{margin-left:12px}
+.grid{display:grid;grid-template-columns:190px 1.25fr 1fr;min-height:420px}
+.tree{border-right:1px solid var(--line);padding:14px;font-size:13px;color:var(--mute);line-height:2}
+.tree b{color:var(--tx);font-weight:500}
+.tree .on{color:var(--cy)}
+.tree .new{animation:flash 2.4s infinite}
+@keyframes flash{0%,60%{color:var(--mute)}70%{color:var(--cy);text-shadow:0 0 12px var(--cy)}}
+.code{padding:16px;font-size:13px;line-height:1.75;border-right:1px solid var(--line);white-space:pre;overflow:hidden;color:#c7ccee}
+.k{color:#a35cff}.s{color:#5ce1ff}.c{color:#5a6190}.f{color:#4d8dff}
+.caret{display:inline-block;width:8px;height:15px;background:var(--cy);vertical-align:-2px;animation:pulse 1s steps(2) infinite}
+.view{position:relative;background:radial-gradient(80% 70% at 50% 100%,#a35cff44,transparent),#080a16;overflow:hidden}
+.iso{position:absolute;inset:0;display:grid;place-items:center}
+.iso svg{width:92%;max-width:340px}
+.blk{animation:rise .9s cubic-bezier(.2,.8,.2,1) both;transform-origin:center bottom}
+@keyframes rise{from{opacity:0;transform:translateY(40px) scale(.6)}}
+.scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cy),transparent);box-shadow:0 0 18px var(--cy);animation:scan 4s linear infinite}
+@keyframes scan{from{top:0}to{top:100%}}
+.float{position:absolute;width:236px;background:#0d1020ee;border:1px solid #ffffff2b;border-radius:14px;padding:12px 14px;font-size:13px;backdrop-filter:blur(10px);box-shadow:0 20px 60px #000a,0 0 30px #4d8dff30;animation:bob 6s ease-in-out infinite}
+.float h4{margin:0 0 4px;font-size:14px;display:flex;align-items:center;gap:8px}
+.float h4 i{width:9px;height:9px;border-radius:50%;background:var(--cy);box-shadow:0 0 10px currentColor}
+.float p{margin:0;color:var(--mute);line-height:1.45}
+.bar2{height:5px;border-radius:9px;background:#ffffff14;margin-top:9px;overflow:hidden}
+.bar2 em{display:block;height:100%;background:var(--g);border-radius:9px;animation:fill 5s ease-in-out infinite}
+@keyframes fill{from{width:8%}to{width:96%}}
+@keyframes bob{50%{transform:translateY(-12px)}}
+.f1{left:-2%;top:-2%;transform:translateZ(70px)}
+.f2{right:-2%;top:16%;transform:translateZ(110px);animation-delay:-2s}
+.f3{left:2%;bottom:-6%;transform:translateZ(90px);animation-delay:-4s}
+.f1,.f2,.f3{animation-name:bob3}
+@keyframes bob3{50%{translate:0 -12px}}
+.chips{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:70px;color:var(--mute);font-size:14px}
+.chips span{border:1px solid var(--line);padding:8px 16px;border-radius:99px;background:#ffffff06}
+
+/* collab */
+.split{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center}
+.net{position:relative;aspect-ratio:1;max-width:520px;margin:auto;width:100%}
+.net svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.net .ln{stroke:url(#lg);stroke-width:1.6;stroke-dasharray:6 8;animation:dash 1.4s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-28}}
+.node{position:absolute;transform:translate(-50%,-50%);background:#0d1020;border:1px solid #ffffff2b;border-radius:14px;padding:8px 14px;font-size:13px;white-space:nowrap;box-shadow:0 0 26px #4d8dff33;animation:hl 7.2s infinite}
+.node.core{padding:18px 22px;font-weight:700;font-size:16px;background:var(--g);border:0;box-shadow:0 0 60px #7a6bff;animation:none}
+@keyframes hl{0%,12%,100%{border-color:#ffffff2b;color:var(--tx)}4%,8%{border-color:var(--cy);color:var(--cy);box-shadow:0 0 34px #5ce1ff88}}
+.feed{margin-top:8px;display:grid;gap:10px}
+.feed div{display:flex;gap:12px;align-items:flex-start;color:var(--mute);font-size:15px;padding:12px 0;border-top:1px solid var(--line)}
+.feed b{color:var(--tx);font-weight:500;min-width:92px}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px;counter-reset:s}
+.step{position:relative;border:1px solid var(--line);border-radius:20px;padding:28px;background:linear-gradient(180deg,#ffffff0a,#ffffff03);overflow:hidden}
+.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--g);font-weight:700;margin-bottom:18px}
+.step::after{content:"";position:absolute;inset:auto -30% -60% auto;width:70%;aspect-ratio:1;background:var(--vio);filter:blur(80px);opacity:.18}
+.step h3{margin:0 0 8px;font-size:22px;letter-spacing:-.02em}
+.step p{margin:0;color:var(--mute);font-size:15px}
+.pr{margin-top:16px;padding:10px 12px;border-radius:10px;background:#00000066;color:var(--cy);font-size:12.5px}
+
+.final{text-align:center;padding-bottom:90px}
+.final h2{margin-inline:auto;max-width:18ch}
+.final .box{border:1px solid #ffffff22;border-radius:30px;padding:80px 24px;background:radial-gradient(60% 90% at 50% 120%,#a35cff55,transparent),radial-gradient(50% 80% at 10% -20%,#4d8dff44,transparent),#0a0c19}
+.final p.lead{margin-inline:auto}
+footer{text-align:center;color:var(--mute);font-size:14px;padding:30px 20px 50px;border-top:1px solid var(--line)}
+.rv{opacity:0;transform:translateY(26px);transition:1s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media(max-width:900px){nav ul{display:none}.grid{grid-template-columns:1fr}.tree,.view{display:none}.split,.steps{grid-template-columns:1fr}.float{display:none}section{padding-block:80px}.code{font-size:11.5px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<nav>
+  <a class="logo" href="#top"><i></i>RoboAI</a>
+  <ul><li><a href="#studio">Studio</a></li><li><a href="#agents">Agents</a></li><li><a href="#flow">How it works</a></li></ul>
+  <a class="btn pri" href="#start">Start building</a>
+</nav>
+
+<main id="top">
+<section class="hero">
+  <div class="pill mono"><b></b>6 agents online · Roblox Studio connected</div>
+  <h1>Your game team,<br><span>built from agents.</span></h1>
+  <p class="lead">RoboAI plugs into Roblox Studio and puts a crew of specialist AI agents to work: scripting, building, testing and polishing while you steer.</p>
+  <div class="cta"><a class="btn pri" href="#start">Start building</a><a class="btn sec" href="#studio">Watch it work</a></div>
+
+  <div class="stage" id="studio">
+    <div class="glow"></div>
+    <div class="rig" id="rig">
+      <div class="win">
+        <div class="bar"><i></i><i></i><i></i><span class="mono">RoboAI · Roblox Studio · Obstacle Kingdom</span></div>
+        <div class="grid">
+          <div class="tree mono" style="text-align:left">
+            <b>Explorer</b><br>▸ Workspace<br>&nbsp;&nbsp;▸ Arena<br>&nbsp;&nbsp;<span class="new">▸ Checkpoints</span><br>▾ ServerScriptService<br>&nbsp;&nbsp;<span class="on">◆ CheckpointService</span><br>&nbsp;&nbsp;◆ DataStore<br>▸ StarterGui
+          </div>
+          <div class="code mono" id="code" style="text-align:left" aria-label="Animated code generation"></div>
+          <div class="view"><div class="scan"></div>
+            <div class="iso"><svg viewBox="0 0 300 260" aria-hidden="true">
+              <defs><linearGradient id="tp" x1="0" x2="1"><stop offset="0" stop-color="#5ce1ff"/><stop offset="1" stop-color="#a35cff"/></linearGradient></defs>
+              <g fill="none" stroke="#4d8dff" stroke-opacity=".5"><path d="M20 170 150 240 280 170 150 100Z" fill="#4d8dff14"/></g>
+              <g class="blk" style="animation-delay:.2s"><path d="M70 160 110 182 150 160 110 138Z" fill="url(#tp)"/><path d="M70 160v26l40 22v-26Z" fill="#3d5fd0"/><path d="M110 182v26l40-22v-26Z" fill="#6a3fc0"/></g>
+              <g class="blk" style="animation-delay:.9s"><path d="M130 130 170 152 210 130 170 108Z" fill="url(#tp)"/><path d="M130 130v26l40 22v-26Z" fill="#3d5fd0"/><path d="M170 152v26l40-22v-26Z" fill="#6a3fc0"/></g>
+              <g class="blk" style="animation-delay:1.6s"><path d="M190 100 220 117 250 100 220 83Z" fill="url(#tp)"/><path d="M190 100v22l30 17v-22Z" fill="#3d5fd0"/><path d="M220 117v22l30-17v-22Z" fill="#6a3fc0"/></g>
+              <circle cx="220" cy="60" r="7" fill="#5ce1ff"><animate attributeName="cy" values="60;48;60" dur="2.4s" repeatCount="indefinite"/></circle>
+            </svg></div>
+          </div>
+        </div>
+      </div>
+      <div class="float f1" style="text-align:left"><h4><i style="color:#5ce1ff"></i>Scripter</h4><p id="fl1">Writing checkpoint saves…</p><div class="bar2"><em></em></div></div>
+      <div class="float f2" style="text-align:left"><h4><i style="color:#a35cff;background:#a35cff"></i>Builder</h4><p>Placing 24 platforms along the path</p><div class="bar2"><em style="animation-delay:-2s"></em></div></div>
+      <div class="float f3" style="text-align:left"><h4><i style="color:#4d8dff;background:#4d8dff"></i>Tester</h4><p id="fl3">Playtest 3 of 5: no soft-locks found</p><div class="bar2"><em style="animation-delay:-3.5s"></em></div></div>
+    </div>
+  </div>
+  <div class="chips"><span>Luau scripting</span><span>World building</span><span>Automated playtests</span><span>Review before anything ships</span></div>
+</section>
+
+<section id="agents">
+  <div class="split">
+    <div class="rv">
+      <h2>Agents that hand work to each other.</h2>
+      <p class="lead">Describe a feature once. The Lead splits it up, the specialists work in parallel, and every result is checked by another agent before it reaches you.</p>
+      <div class="feed mono" id="feed" style="font-size:13px"></div>
+    </div>
+    <div class="net rv" aria-label="Diagram of RoboAI agents collaborating">
+      <svg viewBox="0 0 100 100"><defs><linearGradient id="lg"><stop offset="0" stop-color="#4d8dff"/><stop offset="1" stop-color="#a35cff"/></linearGradient></defs>
+        <g class="ln-g" id="lines"></g></svg>
+    </div>
+  </div>
+</section>
+
+<section id="flow">
+  <h2 class="rv">From a sentence to a playable build.</h2>
+  <div class="steps">
+    <div class="step rv"><h3>Describe it</h3><p>Tell the Lead what you want in plain words. It writes a plan you can edit.</p><div class="pr mono">"Add checkpoints and a respawn timer"</div></div>
+    <div class="step rv"><h3>Watch it build</h3><p>Agents write Luau, place parts and wire up UI inside Studio while you watch live.</p><div class="pr mono">+ 3 scripts · 24 parts · 1 GUI</div></div>
+    <div class="step rv"><h3>Review and ship</h3><p>Testers play it first. You approve, request changes, or roll back with one click.</p><div class="pr mono">5/5 playtests passed · ready</div></div>
+  </div>
+</section>
+
+<section class="final" id="start">
+  <div class="box rv">
+    <h2>Give your next idea a whole team.</h2>
+    <p class="lead">Open Roblox Studio, connect RoboAI, and start with one sentence.</p>
+    <a class="btn pri" href="#top">Start building</a>
+  </div>
+</section>
+</main>
+<footer>© 2026 RoboAI. Roblox is a trademark of Roblox Corporation; RoboAI is not affiliated with it.</footer>
+
+<script>
+(function(){
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* typed code */
+var L=[
+'<span class="c">-- CheckpointService.lua · generated by Scripter</span>',
+'<span class="k">local</span> Players = game:<span class="f">GetService</span>(<span class="s">"Players"</span>)',
+'<span class="k">local</span> saved = {}',
+'',
+'<span class="k">local function</span> <span class="f">onTouch</span>(player, cp)',
+'  saved[player.UserId] = cp.Order',
+'  player:<span class="f">SetAttribute</span>(<span class="s">"Checkpoint"</span>, cp.Order)',
+'<span class="k">end</span>',
+'',
+'<span class="k">for</span> _, cp <span class="k">in</span> workspace.Checkpoints:<span class="f">GetChildren</span>() <span class="k">do</span>',
+'  cp.Touched:<span class="f">Connect</span>(<span class="k">function</span>(hit)',
+'    <span class="k">local</span> p = Players:<span class="f">GetPlayerFromCharacter</span>(hit.Parent)',
+'    <span class="k">if</span> p <span class="k">then</span> <span class="f">onTouch</span>(p, cp) <span class="k">end</span>',
+'  <span class="k">end</span>)',
+'<span class="k">end</span>'];
+var el=document.getElementById('code');
+function plain(s){var d=document.createElement('div');d.innerHTML=s;return d.textContent.length}
+function render(n){ // show first n visible chars, keeping markup
+  var out='',cnt=0;
+  for(var i=0;i<L.length;i++){
+    var len=plain(L[i]);
+    if(cnt+len<=n){out+=L[i]+'\n';cnt+=len+1}
+    else{var r=n-cnt,t=L[i],vis=0,res='',inTag=false;
+      for(var j=0;j<t.length&&vis<r;j++){var ch=t[j];res+=ch;if(ch=='<')inTag=true;else if(ch=='>')inTag=false;else if(!inTag){ if(ch=='&'){var e=t.indexOf(';',j);res+=t.slice(j+1,e+1);j=e}vis++}}
+      var open=(res.match(/<span/g)||[]).length-(res.match(/<\/span>/g)||[]).length;
+      while(open-->0)res+='</span>';
+      out+=res+'<span class="caret"></span>';break}
+  }
+  el.innerHTML=out;
+}
+var total=L.reduce(function(a,l){return a+plain(l)+1},0);
+if(reduce){render(total)}else{var n=0,hold=0;setInterval(function(){
+  if(n>=total){if(++hold>60){n=0;hold=0}return}
+  n+=2;render(Math.min(n,total))},45)}
+/* floating text */
+var m1=['Writing checkpoint saves…','Adding respawn timer…','Linking leaderboard…'],i1=0,f1=document.getElementById('fl1');
+var m3=['Playtest 3 of 5: no soft-locks found','Checking jump distances…','Playtest 4 of 5: passed'],f3=document.getElementById('fl3');
+if(!reduce)setInterval(function(){i1=(i1+1)%3;f1.textContent=m1[i1];f3.textContent=m3[i1]},3200);
+/* camera rig tied to scroll + pointer */
+var rig=document.getElementById('rig'),px=0,py=0;
+function cam(){var y=Math.min(scrollY/520,1);
+  rig.style.setProperty('--rx',(16*(1-y)+px*-3)+'deg');
+  rig.style.setProperty('--ry',(-6*(1-y)+py*5)+'deg');
+  rig.style.setProperty('--sc',.96+.06*y);
+  rig.style.setProperty('--ty',(-30*y)+'px')}
+if(!reduce){addEventListener('scroll',cam,{passive:true});
+  addEventListener('pointermove',function(e){py=e.clientX/innerWidth-.5;px=e.clientY/innerHeight-.5;cam()});cam()}
+/* agent network */
+var names=['Planner','Scripter','Builder','UI Designer','Tester','Optimizer'],net=document.querySelector('.net'),g=document.getElementById('lines'),h='';
+names.forEach(function(n,i){var a=i/6*Math.PI*2-Math.PI/2,x=50+Math.cos(a)*38,y=50+Math.sin(a)*38;
+  h+='<line class="ln" x1="50" y1="50" x2="'+x+'" y2="'+y+'" style="animation-delay:-'+i*.2+'s"/>';
+  var d=document.createElement('div');d.className='node';d.textContent=n;d.style.left=x+'%';d.style.top=y+'%';d.style.animationDelay=(i*1.2)+'s';net.appendChild(d)});
+g.innerHTML=h;
+var c=document.createElement('div');c.className='node core';c.style.left='50%';c.style.top='50%';c.textContent='Lead';net.appendChild(c);
+/* feed */
+var F=[['Lead','Splits “add checkpoints” into 4 tasks'],['Scripter','Writes CheckpointService and save logic'],['Builder','Places checkpoint pads along the course'],['Tester','Runs 5 playtests, reports 0 soft-locks']];
+document.getElementById('feed').innerHTML=F.map(function(f){return '<div><b>'+f[0]+'</b><span>'+f[1]+'</span></div>'}).join('');
+/* reveal */
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.15});
+document.querySelectorAll('.rv').forEach(function(e){io.observe(e)});
+})();
+</script>
+</body>
+</html>
