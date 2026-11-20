@@ -1,6 +1,8 @@
 const express = require("express");
 const fs = require("node:fs");
 const path = require("node:path");
+const crypto = require("node:crypto");
+const studioMcp = require("./studio-mcp");
 
 const app = express();
 const HOST = "127.0.0.1";
@@ -73,6 +75,27 @@ app.get("/api/health", async (_req, res) => {
   } catch (e) { error = e.message; }
   res.json({ ok: true, ollama, models, error, agents: Object.keys(agents).length });
 });
+app.get("/api/studio", (_req, res) => res.json(studioMcp.getStudioStatus()));
+app.post("/api/studio/connect", async (_req, res) => {
+  try {
+    const result = await studioMcp.connectStudio();
+    res.json(result);
+  } catch (error) {
+    res.status(502).json({ connected: false, error: error.message || "Could not connect to Roblox Studio." });
+  }
+});
+app.post("/api/studio/disconnect", async (_req, res) => {
+  res.json(await studioMcp.disconnectStudio());
+});
+app.post("/api/studio/list", async (_req, res) => {
+  try {
+    if (!studioMcp.getStudioStatus().connected) return res.status(409).json({ error: "Connect Roblox Studio first." });
+    const result = await studioMcp.callStudioTool("list_roblox_studios", {});
+    res.json({ result: result.content });
+  } catch (error) {
+    res.status(502).json({ error: error.message || "Could not list Studio sessions." });
+  }
+});
 app.get("/api/agents", (_req, res) => res.json(agents));
 app.get("/api/chats", (_req, res) => res.json(readStore().chats));
 app.get("/api/projects", (_req, res) => res.json(readStore().projects));
@@ -123,7 +146,7 @@ app.post("/api/chat", async (req, res) => {
         model,
         stream: false,
         messages: [
-          { role: "system", content: agents[agent].system + "\n\nYou are running locally inside RoboAI. Be honest about tool access. Roblox Studio is not connected in this MVP." },
+          { role: "system", content: agents[agent].system + "\n\nYou are running locally inside RoboAI. Roblox Studio MCP connection status is available in the dashboard, but do not claim to inspect or edit Studio unless a connected Studio tool was actually called." },
           ...context,
           { role: "user", content: prompt }
         ],
