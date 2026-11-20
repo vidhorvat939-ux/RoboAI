@@ -5,7 +5,7 @@
 <title>RoboAI — Roblox AI workspace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--bg:#070812;--panel:#101221;--panel2:#15182a;--line:#ffffff16;--text:#eef0ff;--muted:#9298b8;--blue:#548cff;--purple:#a45cff;--cyan:#5ce1ff;--grad:linear-gradient(115deg,var(--blue),var(--purple)}
+:root{color-scheme:dark;--bg:#070812;--panel:#101221;--panel2:#15182a;--line:#ffffff16;--text:#eef0ff;--muted:#9298b8;--blue:#548cff;--purple:#a45cff;--cyan:#5ce1ff;--grad:linear-gradient(115deg,var(--blue),var(--purple))}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(55rem 35rem at 18% -10%,#3154a52b,transparent),var(--bg);color:var(--text);font:15px "Space Grotesk",sans-serif;height:100vh;overflow:hidden}
 button,input,textarea,select{font:inherit}button{cursor:pointer;color:inherit}.app{height:100vh;display:grid;grid-template-columns:250px 1fr}
 .sidebar{border-right:1px solid var(--line);background:#090a14d9;padding:18px 14px;display:flex;flex-direction:column;min-height:0}
@@ -68,7 +68,7 @@ async function refreshHealth(){
     const select=$("model");select.innerHTML="";
     (h.models||[]).forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=m;select.appendChild(o)});
     if(!h.models||!h.models.length){const o=document.createElement("option");o.value="";o.textContent="AI not configured";select.appendChild(o)}
-    if(!h.aiConfigured)toast("RoboAI needs its cloud Gemini API key before visitors can chat. The site itself can still be opened.");
+
   }catch(e){$("connection").querySelector("span").textContent="Server unavailable"}
 }
 function setAgent(agent){currentAgent=agent;document.querySelectorAll(".agent").forEach(b=>b.classList.toggle("active",b.dataset.agent===agent));$("agentHint").textContent=labels[agent]}
