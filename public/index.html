@@ -11,7 +11,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;color:inherit}.a
 .sidebar{border-right:1px solid var(--line);background:#090a14d9;padding:18px 14px;display:flex;flex-direction:column;min-height:0}
 .brand{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:700;padding:5px 8px 24px}.mark{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;box-shadow:0 0 25px #6688ff55}.mark:after{content:"";width:11px;height:11px;border:2px solid white;border-radius:3px}
 .new{width:100%;border:1px solid #638aff66;background:#548cff17;padding:11px;border-radius:10px;text-align:left;font-weight:600}.section-label{font:11px "JetBrains Mono";color:#777e9e;letter-spacing:.12em;margin:25px 8px 9px}.agent-list{display:grid;gap:5px}.agent{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid transparent;border-radius:9px;background:transparent;text-align:left;color:var(--muted)}.agent:hover,.agent.active{background:#ffffff0b;border-color:var(--line);color:var(--text)}.dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px currentColor}.agent small{display:block;color:var(--muted);font-size:11px}.chat-history{overflow:auto;display:grid;gap:4px}.history-item{background:none;border:0;color:var(--muted);padding:8px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:7px}.history-item:hover{background:#ffffff0a;color:var(--text)}.side-bottom{margin-top:auto;border-top:1px solid var(--line);padding:14px 5px 0;color:var(--muted);font-size:12px}.status{display:flex;align-items:center;gap:8px}.status .dot{background:#f3b64d}.status.ok .dot{background:#53dfa4}
-main{display:flex;flex-direction:column;min-width:0;min-height:0}.top{height:65px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:#090a14a8}.top-title{font-weight:600}.top-right{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px}.model{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:8px 10px;border-radius:8px;max-width:220px}
+main{display:flex;flex-direction:column;min-width:0;min-height:0}.top{height:65px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:#090a14a8}.top-title{font-weight:600}.top-right{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px}#studioConnect{border-color:#5ce1ff55;background:#5ce1ff12;color:var(--cyan)}.model{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:8px 10px;border-radius:8px;max-width:220px}
 .workspace{display:flex;flex-direction:column;flex:1;min-height:0;max-width:1050px;width:100%;margin:auto;padding:26px 34px 20px}.welcome{margin:auto;text-align:center;max-width:620px}.welcome .eyebrow{font:12px "JetBrains Mono";color:var(--cyan);letter-spacing:.14em}.welcome h1{font-size:clamp(34px,5vw,56px);line-height:1.05;margin:15px 0}.welcome h1 span{background:var(--grad);background-clip:text;color:transparent}.welcome p{color:var(--muted);line-height:1.7}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:28px}.hint{border:1px solid var(--line);background:#ffffff06;border-radius:12px;padding:13px;text-align:left;color:var(--muted);font-size:12px}.hint b{display:block;color:var(--text);font-size:13px;margin-bottom:4px}
 .messages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:18px;padding:5px 3px 22px}.msg{display:flex;gap:12px;max-width:850px;line-height:1.7}.avatar{width:30px;height:30px;flex:0 0 30px;border-radius:9px;background:var(--panel2);display:grid;place-items:center;font-size:12px;color:var(--cyan)}.msg.user .avatar{background:#26365e;color:#b9ceff}.msg-body{min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}.msg-head{font-size:12px;color:var(--muted);margin-bottom:4px}.msg.assistant .msg-body{color:#e5e8ff}.msg-body code{font-family:"JetBrains Mono";font-size:12px;background:#ffffff12;padding:2px 5px;border-radius:4px}
 .composer{border:1px solid #ffffff25;background:#111425;border-radius:15px;padding:12px;box-shadow:0 12px 50px #0006}.composer textarea{width:100%;resize:vertical;min-height:65px;max-height:180px;border:0;outline:0;background:transparent;color:var(--text);padding:5px;font-size:15px}.composer-bottom{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px}.send{background:var(--grad);border:0;border-radius:9px;padding:9px 17px;font-weight:700}.send:disabled{opacity:.4;cursor:not-allowed}.note{text-align:center;color:#686e8b;font-size:11px;padding-top:9px}
@@ -38,7 +38,7 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}.top{height:65p
   <div class="side-bottom"><div class="status" id="connection"><i class="dot"></i><span>Checking local Ollama…</span></div><div style="margin-top:8px">Local-first · Your chats stay on this PC</div></div>
 </aside>
 <main>
-  <header class="top"><div class="top-title" id="currentTitle">New conversation</div><div class="top-right"><span>MODEL</span><select class="model" id="model"><option value="">Checking Ollama…</option></select></div></header>
+  <header class="top"><div class="top-title" id="currentTitle">New conversation</div><div class="top-right"><button class="model" id="studioConnect" type="button">Connect Studio</button><span>MODEL</span><select class="model" id="model"><option value="">Checking Ollama…</option></select></div></header>
   <div class="workspace">
     <section class="welcome" id="welcome">
       <div class="eyebrow">YOUR LOCAL ROBLOX AI TEAM</div>
@@ -62,6 +62,25 @@ let currentAgent = "lead", currentChat = null, busy = false;
 const labels = {lead:"Lead · planning & coordination",scripter:"Scripter · Roblox Luau",builder:"Builder · world & environment",ui:"UI Designer · interfaces & UX",tester:"Tester · QA & code review",optimizer:"Optimizer · performance"};
 function toast(message){$("toast").textContent=message;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",4200)}
 async function api(url,options={}){const r=await fetch(url,{headers:{"Content-Type":"application/json"},...options});const data=await r.json();if(!r.ok)throw new Error(data.error||"Request failed");return data}
+async function refreshStudio(){
+  const button=$("studioConnect");
+  try{
+    const s=await api("/api/studio");
+    button.textContent=s.connected?"Studio connected":"Connect Studio";
+    button.title=s.connected?"Available tools: "+s.tools.join(", "):"Connect to the open Roblox Studio session";
+  }catch(e){button.textContent="Studio offline"}
+}
+async function connectStudio(){
+  const button=$("studioConnect");button.disabled=true;button.textContent="Connecting…";
+  try{
+    const result=await api("/api/studio/connect",{method:"POST",body:"{}"});
+    toast("Connected to Roblox Studio MCP. Checking open Studio sessions…");
+    const sessions=await api("/api/studio/list",{method:"POST",body:"{}"});
+    toast("Studio MCP connected. "+sessions.result.slice(0,220));
+    await refreshStudio();
+  }catch(e){toast(e.message);button.textContent="Connect Studio"}
+  finally{button.disabled=false}
+}
 async function refreshHealth(){
   try{
     const h=await api("/api/health");const s=$("connection");s.classList.toggle("ok",h.ollama);
@@ -109,8 +128,8 @@ async function send(){
   finally{busy=false;$("send").disabled=false;$("send").textContent="Send ↑";$("prompt").focus()}
 }
 document.querySelectorAll(".agent").forEach(b=>b.addEventListener("click",()=>setAgent(b.dataset.agent)));
-$("newChat").addEventListener("click",newChat);$("send").addEventListener("click",send);
+$("newChat").addEventListener("click",newChat);$("send").addEventListener("click",send);$("studioConnect").addEventListener("click",connectStudio);
 $("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
-refreshHealth();loadHistory();setInterval(refreshHealth,30000);
+refreshHealth();refreshStudio();loadHistory();setInterval(refreshHealth,30000);setInterval(refreshStudio,10000);
 </script>
 </body></html>
