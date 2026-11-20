@@ -135,7 +135,7 @@ async function askCloudflare(agent, history, prompt) {
     body: JSON.stringify({
       messages: [
         { role: "system", content: agents[agent].system + "\n\nYou are RoboAI, a Roblox game-development assistant. Give practical, accurate answers. Never claim to have edited Roblox Studio or run a test unless a connected local tool actually did it." },
-        { role: "user", content: (history ? "Previous conversation:\\n" + history + "\n\n" : "") + "User: " + prompt }
+        { role: "user", content: (history ? "Previous conversation:\n" + history + "\n\n" : "") + "User: " + prompt }
       ],
       max_completion_tokens: 2048,
       temperature: 0.35
