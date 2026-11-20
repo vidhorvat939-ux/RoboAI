@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RoboAI — Local workspace</title>
+<title>RoboAI — Roblox AI workspace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:dark;--bg:#070812;--panel:#101221;--panel2:#15182a;--line:#ffffff16;--text:#eef0ff;--muted:#9298b8;--blue:#548cff;--purple:#a45cff;--cyan:#5ce1ff;--grad:linear-gradient(115deg,var(--blue),var(--purple)}
@@ -35,68 +35,45 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}.top{height:65p
   </div>
   <div class="section-label">RECENT CHATS</div>
   <div class="chat-history" id="history"><div class="empty">Your saved chats appear here.</div></div>
-  <div class="side-bottom"><div class="status" id="connection"><i class="dot"></i><span>Checking local Ollama…</span></div><div style="margin-top:8px">Local-first · Your chats stay on this PC</div></div>
+  <div class="side-bottom"><div class="status" id="connection"><i class="dot"></i><span>Checking cloud AI…</span></div><div style="margin-top:8px">Cloud AI · Separate chats for each browser</div></div>
 </aside>
 <main>
-  <header class="top"><div class="top-title" id="currentTitle">New conversation</div><div class="top-right"><button class="model" id="studioConnect" type="button">Connect Studio</button><span>MODEL</span><select class="model" id="model"><option value="">Checking Ollama…</option></select></div></header>
+  <header class="top"><div class="top-title" id="currentTitle">New conversation</div><div class="top-right"><button class="model" id="studioConnect" type="button">Connect Studio</button><span>AI MODEL</span><select class="model" id="model"><option value="">Checking Ollama…</option></select></div></header>
   <div class="workspace">
     <section class="welcome" id="welcome">
-      <div class="eyebrow">YOUR LOCAL ROBLOX AI TEAM</div>
+      <div class="eyebrow">YOUR ROBLOX AI TEAM · CLOUD</div>
       <h1>Build better games<br><span>with your AI team.</span></h1>
-      <p>Choose a specialist, describe what you're building, and get help powered by a model running locally through Ollama.</p>
+      <p>Choose a specialist, describe what you're building, and get help from RoboAI's cloud-powered AI.</p>
       <div class="cards"><div class="hint"><b>Ask the Scripter</b>Build a secure coin collection system.</div><div class="hint"><b>Ask the Builder</b>Plan a simulator map layout.</div><div class="hint"><b>Ask the Tester</b>Review a Luau script for bugs.</div></div>
     </section>
     <section class="messages" id="messages" hidden></section>
-    <div class="target-bar"><div class="target-copy"><strong>Choose your Roblox Studio game</strong><span>Targets the game currently open in your connected Roblox Studio.</span></div><select class="model" id="studioTarget" disabled title="Connect Studio first"><option value="">Connect Studio first</option></select></div><div class="composer">
+    <div class="target-bar"><div class="target-copy"><strong>Roblox Studio connection</strong><span>Studio editing is available only through a local RoboAI connection on your own computer.</span></div><select class="model" id="studioTarget" disabled title="Connect Studio first"><option value="">Connect Studio first</option></select></div><div class="composer">
       <textarea id="prompt" placeholder="Describe a Roblox feature or paste your Luau code…" rows="2"></textarea>
       <div class="composer-bottom"><span id="agentHint">Lead · planning & coordination</span><button class="send" id="send">Send ↑</button></div>
     </div>
-    <div class="note">RoboAI uses your local Ollama installation. AI output can be wrong — review scripts before using them in Roblox Studio.</div>
+    <div class="note">RoboAI uses cloud AI. Chats are separated by browser and may be temporarily stored in server memory. Don't share passwords or sensitive information. Always review scripts before using them.</div>
   </div>
 </main>
 </div>
 <div class="toast" id="toast"></div>
-<script>
-const $ = id => document.getElementById(id);
-let currentAgent = "lead", currentChat = null, busy = false, studioTarget = "";
+<script>const $ = id => document.getElementById(id);
+let currentAgent = "lead", currentChat = null, busy = false;
 const labels = {lead:"Lead · planning & coordination",scripter:"Scripter · Roblox Luau",builder:"Builder · world & environment",ui:"UI Designer · interfaces & UX",tester:"Tester · QA & code review",optimizer:"Optimizer · performance"};
-function toast(message){$("toast").textContent=message;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",4200)}
-async function api(url,options={}){const r=await fetch(url,{headers:{"Content-Type":"application/json"},...options});const data=await r.json();if(!r.ok)throw new Error(data.error||"Request failed");return data}
-async function refreshStudio(){
-  const button=$("studioConnect");
-  try{
-    const s=await api("/api/studio");
-    button.textContent=s.connected?"Studio connected":"Connect Studio";
-    button.title=s.connected?"Available tools: "+s.tools.join(", "):"Connect to the open Roblox Studio session";
-    const target=$("studioTarget"); target.disabled=!s.connected; target.innerHTML="";
-    const option=document.createElement("option"); option.value=s.connected?"current":""; option.textContent=s.connected?"Currently open Roblox Studio game":"Connect Studio first"; target.appendChild(option);
-    studioTarget=s.connected?"current":""; target.value=studioTarget;
-  }catch(e){button.textContent="Studio offline"}
-}
-async function connectStudio(){
-  const button=$("studioConnect");button.disabled=true;button.textContent="Connecting…";
-  try{
-    const result=await api("/api/studio/connect",{method:"POST",body:"{}"});
-    toast("Connected to Roblox Studio MCP. Checking open Studio sessions…");
-    const sessions=await api("/api/studio/list",{method:"POST",body:"{}"});
-    toast("Studio MCP connected. "+sessions.result.slice(0,220));
-    await refreshStudio();
-  }catch(e){toast(e.message);button.textContent="Connect Studio"}
-  finally{button.disabled=false}
-}
+function toast(message){$("toast").textContent=message;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",5000)}
+async function api(url,options={}){const r=await fetch(url,{headers:{"Content-Type":"application/json"},credentials:"same-origin",...options});const data=await r.json();if(!r.ok)throw new Error(data.error||"Request failed");return data}
 async function refreshHealth(){
   try{
-    const h=await api("/api/health");const s=$("connection");s.classList.toggle("ok",h.ollama);
-    s.querySelector("span").textContent=h.ollama?"Ollama connected":"Ollama not connected";
+    const h=await api("/api/health");const s=$("connection");s.classList.toggle("ok",h.aiConfigured);
+    s.querySelector("span").textContent=h.aiConfigured?(h.provider==="gemini"?"Cloud AI ready":"Local Ollama ready"):"AI setup required";
     const select=$("model");select.innerHTML="";
-    if(h.models.length){h.models.forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=m;select.appendChild(o)})}
-    else{const o=document.createElement("option");o.value="";o.textContent="No models found";select.appendChild(o)}
-    if(!h.ollama)toast("Start Ollama on this PC, then refresh this page. "+(h.error||""));
-  }catch(e){$("connection").querySelector("span").textContent="Local server unavailable";toast(e.message)}
+    (h.models||[]).forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=m;select.appendChild(o)});
+    if(!h.models||!h.models.length){const o=document.createElement("option");o.value="";o.textContent="AI not configured";select.appendChild(o)}
+    if(!h.aiConfigured)toast("RoboAI needs its cloud Gemini API key before visitors can chat. The site itself can still be opened.");
+  }catch(e){$("connection").querySelector("span").textContent="Server unavailable"}
 }
 function setAgent(agent){currentAgent=agent;document.querySelectorAll(".agent").forEach(b=>b.classList.toggle("active",b.dataset.agent===agent));$("agentHint").textContent=labels[agent]}
 async function loadHistory(){
-  try{const chats=await api("/api/chats");const el=$("history");el.innerHTML="";if(!chats.length){el.innerHTML='<div class="empty">Your saved chats appear here.</div>';return}
+  try{const chats=await api("/api/chats");const el=$("history");el.innerHTML="";if(!chats.length){el.innerHTML='<div class="empty">Your chats appear here.</div>';return}
     chats.forEach(c=>{const b=document.createElement("button");b.className="history-item";b.textContent=c.title;b.title=c.title;b.onclick=()=>openChat(c.id);el.appendChild(b)})
   }catch(e){toast(e.message)}
 }
@@ -119,21 +96,21 @@ function addMessage(role,content,agent){
 async function openChat(id){try{currentChat=await api("/api/chats/"+id);$("currentTitle").textContent=currentChat.title;setAgent(currentChat.agent||"lead");showMessages(currentChat.messages||[])}catch(e){toast(e.message)}}
 async function send(){
   const message=$("prompt").value.trim();if(!message||busy)return;
-  if(!$("model").value){toast("Install or start an Ollama model before chatting.");return}
+  if(!$("model").value){toast("Cloud AI has not been configured yet.");return}
   if(!currentChat)await newChat();if(!currentChat)return;
   busy=true;$("send").disabled=true;$("send").textContent="Working…";$("prompt").value="";
   addMessage("user",message,currentAgent);
-  const wait=document.createElement("div");wait.className="msg assistant";wait.id="thinking";wait.innerHTML='<div class="avatar">AI</div><div class="msg-body"><div class="msg-head">RoboAI is thinking locally…</div><div>Generating response</div></div>';$("messages").appendChild(wait);
+  const wait=document.createElement("div");wait.className="msg assistant";wait.id="thinking";wait.innerHTML='<div class="avatar">AI</div><div class="msg-body"><div class="msg-head">RoboAI is thinking…</div><div>Generating response</div></div>';$("messages").appendChild(wait);
   try{
-    const result=await api("/api/chat",{method:"POST",body:JSON.stringify({chatId:currentChat.id,agent:currentAgent,model:$("model").value,message,studioTarget:$("studioTarget").value})});
+    const result=await api("/api/chat",{method:"POST",body:JSON.stringify({chatId:currentChat.id,agent:currentAgent,model:$("model").value,message})});
     wait.remove();addMessage("assistant",result.answer,currentAgent);currentChat=result.chat;$("currentTitle").textContent=currentChat.title;await loadHistory();
   }catch(e){wait.remove();addMessage("assistant","Error: "+e.message,currentAgent);toast(e.message)}
   finally{busy=false;$("send").disabled=false;$("send").textContent="Send ↑";$("prompt").focus()}
 }
 document.querySelectorAll(".agent").forEach(b=>b.addEventListener("click",()=>setAgent(b.dataset.agent)));
-$("newChat").addEventListener("click",newChat);$("send").addEventListener("click",send);$("studioConnect").addEventListener("click",connectStudio);
-$("studioTarget").addEventListener("change",e=>{studioTarget=e.target.value;});
+$("newChat").addEventListener("click",newChat);$("send").addEventListener("click",send);
+$("studioConnect").disabled=true;$("studioConnect").textContent="Studio: local only";$("studioConnect").title="Roblox Studio can only connect to a local RoboAI bridge on your own computer.";
+$("studioTarget").disabled=true;$("studioTarget").innerHTML='<option value="">Studio connection is local only</option>';
 $("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
-refreshHealth();refreshStudio();loadHistory();setInterval(refreshHealth,30000);setInterval(refreshStudio,10000);
-</script>
+refreshHealth();loadHistory();setInterval(refreshHealth,60000);</script>
 </body></html>
