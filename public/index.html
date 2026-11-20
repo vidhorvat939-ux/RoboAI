@@ -67,7 +67,10 @@ async function refreshStudio(){
   try{
     const s=await api("/api/studio");
     button.textContent=s.connected?"Studio connected":"Connect Studio";
-    button.title=s.connected?"Available tools: "+s.tools.join(", "):"Connect to the open Roblox Studio session";\n    const target=$("studioTarget"); target.disabled=!s.connected; target.innerHTML="";\n    const option=document.createElement("option"); option.value=s.connected?"current":""; option.textContent=s.connected?"Currently open Roblox Studio game":"Connect Studio first"; target.appendChild(option);\n    studioTarget=s.connected?"current":""; target.value=studioTarget;
+    button.title=s.connected?"Available tools: "+s.tools.join(", "):"Connect to the open Roblox Studio session";
+    const target=$("studioTarget"); target.disabled=!s.connected; target.innerHTML="";
+    const option=document.createElement("option"); option.value=s.connected?"current":""; option.textContent=s.connected?"Currently open Roblox Studio game":"Connect Studio first"; target.appendChild(option);
+    studioTarget=s.connected?"current":""; target.value=studioTarget;
   }catch(e){button.textContent="Studio offline"}
 }
 async function connectStudio(){
@@ -128,7 +131,8 @@ async function send(){
   finally{busy=false;$("send").disabled=false;$("send").textContent="Send ↑";$("prompt").focus()}
 }
 document.querySelectorAll(".agent").forEach(b=>b.addEventListener("click",()=>setAgent(b.dataset.agent)));
-$("newChat").addEventListener("click",newChat);$("send").addEventListener("click",send);$("studioConnect").addEventListener("click",connectStudio);\n$("studioTarget").addEventListener("change",e=>{studioTarget=e.target.value;});
+$("newChat").addEventListener("click",newChat);$("send").addEventListener("click",send);$("studioConnect").addEventListener("click",connectStudio);
+$("studioTarget").addEventListener("change",e=>{studioTarget=e.target.value;});
 $("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
 refreshHealth();refreshStudio();loadHistory();setInterval(refreshHealth,30000);setInterval(refreshStudio,10000);
 </script>
