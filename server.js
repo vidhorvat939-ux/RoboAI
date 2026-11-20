@@ -126,7 +126,7 @@ app.get("/api/chats/:id", (req, res) => {
 });
 
 app.post("/api/chat", async (req, res) => {
-  const { chatId, agent = "lead", model, message } = req.body || {};
+  const { chatId, agent = "lead", model, message, studioTarget = "" } = req.body || {};
   const prompt = String(message || "").trim();
   if (!prompt || prompt.length > 12000) return res.status(400).json({ error: "Message must be between 1 and 12,000 characters." });
   if (!agents[agent]) return res.status(400).json({ error: "Unknown agent." });
