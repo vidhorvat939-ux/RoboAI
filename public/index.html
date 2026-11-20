@@ -38,7 +38,7 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}.top{height:65p
   <div class="side-bottom"><div class="status" id="connection"><i class="dot"></i><span>Checking local Ollama…</span></div><div style="margin-top:8px">Local-first · Your chats stay on this PC</div></div>
 </aside>
 <main>
-  <header class="top"><div class="top-title" id="currentTitle">New conversation</div><div class="top-right"><button class="model" id="studioConnect" type="button">Connect Studio</button><span>MODEL</span><select class="model" id="model"><option value="">Checking Ollama…</option></select></div></header>
+  <header class="top"><div class="top-title" id="currentTitle">New conversation</div><div class="top-right"><label for="studioTarget">TARGET GAME</label><select class="model" id="studioTarget" disabled title="Connect Roblox Studio first"><option value="">Connect Studio first</option></select><button class="model" id="studioConnect" type="button">Connect Studio</button><span>MODEL</span><select class="model" id="model"><option value="">Checking Ollama…</option></select></div></header>
   <div class="workspace">
     <section class="welcome" id="welcome">
       <div class="eyebrow">YOUR LOCAL ROBLOX AI TEAM</div>
@@ -58,7 +58,7 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}.top{height:65p
 <div class="toast" id="toast"></div>
 <script>
 const $ = id => document.getElementById(id);
-let currentAgent = "lead", currentChat = null, busy = false;
+let currentAgent = "lead", currentChat = null, busy = false, studioTarget = "";
 const labels = {lead:"Lead · planning & coordination",scripter:"Scripter · Roblox Luau",builder:"Builder · world & environment",ui:"UI Designer · interfaces & UX",tester:"Tester · QA & code review",optimizer:"Optimizer · performance"};
 function toast(message){$("toast").textContent=message;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",4200)}
 async function api(url,options={}){const r=await fetch(url,{headers:{"Content-Type":"application/json"},...options});const data=await r.json();if(!r.ok)throw new Error(data.error||"Request failed");return data}
@@ -67,7 +67,7 @@ async function refreshStudio(){
   try{
     const s=await api("/api/studio");
     button.textContent=s.connected?"Studio connected":"Connect Studio";
-    button.title=s.connected?"Available tools: "+s.tools.join(", "):"Connect to the open Roblox Studio session";
+    button.title=s.connected?"Available tools: "+s.tools.join(", "):"Connect to the open Roblox Studio session";\n    const target=$("studioTarget"); target.disabled=!s.connected; target.innerHTML="";\n    const option=document.createElement("option"); option.value=s.connected?"current":""; option.textContent=s.connected?"Currently open Roblox Studio game":"Connect Studio first"; target.appendChild(option);\n    studioTarget=s.connected?"current":""; target.value=studioTarget;
   }catch(e){button.textContent="Studio offline"}
 }
 async function connectStudio(){
@@ -122,13 +122,13 @@ async function send(){
   addMessage("user",message,currentAgent);
   const wait=document.createElement("div");wait.className="msg assistant";wait.id="thinking";wait.innerHTML='<div class="avatar">AI</div><div class="msg-body"><div class="msg-head">RoboAI is thinking locally…</div><div>Generating response</div></div>';$("messages").appendChild(wait);
   try{
-    const result=await api("/api/chat",{method:"POST",body:JSON.stringify({chatId:currentChat.id,agent:currentAgent,model:$("model").value,message})});
+    const result=await api("/api/chat",{method:"POST",body:JSON.stringify({chatId:currentChat.id,agent:currentAgent,model:$("model").value,message,studioTarget:$("studioTarget").value})});
     wait.remove();addMessage("assistant",result.answer,currentAgent);currentChat=result.chat;$("currentTitle").textContent=currentChat.title;await loadHistory();
   }catch(e){wait.remove();addMessage("assistant","Error: "+e.message,currentAgent);toast(e.message)}
   finally{busy=false;$("send").disabled=false;$("send").textContent="Send ↑";$("prompt").focus()}
 }
 document.querySelectorAll(".agent").forEach(b=>b.addEventListener("click",()=>setAgent(b.dataset.agent)));
-$("newChat").addEventListener("click",newChat);$("send").addEventListener("click",send);$("studioConnect").addEventListener("click",connectStudio);
+$("newChat").addEventListener("click",newChat);$("send").addEventListener("click",send);$("studioConnect").addEventListener("click",connectStudio);\n$("studioTarget").addEventListener("change",e=>{studioTarget=e.target.value;});
 $("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
 refreshHealth();refreshStudio();loadHistory();setInterval(refreshHealth,30000);setInterval(refreshStudio,10000);
 </script>
