@@ -8,11 +8,11 @@ RoboAI is a cloud-ready Roblox development assistant with six specialist agents:
 2. Render can use the included `render.yaml` Blueprint, or set:
    - Build command: `npm install`
    - Start command: `npm start`
-3. Add the secret environment variable `XAI_API_KEY` in Render. Create the key in xAI Console with help from a parent/guardian. Never put the key in GitHub or in browser code.
+3. Add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` in Render. Create a Cloudflare account and a Workers AI API token with help from a parent/guardian. The token needs Workers AI Read permission. Never put the token in GitHub or browser code.
 4. Set `SESSION_SECRET` to a long random secret (Render can generate this automatically).
 5. Deploy. Render assigns a public `https://....onrender.com` address.
 
-The default cloud model is `grok-4.7`. You can override it with `XAI_MODEL`.
+The default cloud model is `@cf/zai-org/glm-4.7-flash`. You can override it with `CLOUDFLARE_MODEL`. Cloudflare Workers AI currently includes a free daily allocation of 10,000 Neurons; requests stop when the free daily allocation is exhausted. Check Cloudflare pricing and model eligibility before deployment.
 
 ## Local development
 
@@ -26,7 +26,7 @@ The default cloud model is `grok-4.7`. You can override it with `XAI_MODEL`.
 - Chat and project data are separated by a signed, HttpOnly browser session cookie.
 - On the included free hosting setup, session data is held in server memory. It is temporary and can disappear after restarts, redeploys, or free-instance sleep. It is not a durable cloud database.
 - The app does not provide user accounts or cross-device chat synchronization yet.
-- The Grok API key stays on the server. A basic per-session chat rate limit is enabled. The owner must also set provider usage limits and monitor usage to prevent unexpected API consumption.
+- The Cloudflare API token stays on the server. A basic per-session chat rate limit is enabled. The owner must also set Cloudflare daily usage quota and monitor usage to prevent unexpected API consumption.
 - Prompts are sent to the configured AI provider. Do not enter passwords or sensitive personal information.
 - Free Render web services can sleep after 15 minutes without traffic and may take about a minute to wake. Free instances have other limits and are intended for testing/hobby projects.
 
