@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RoboAI — Local workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#070812;--panel:#101221;--panel2:#15182a;--line:#ffffff16;--text:#eef0ff;--muted:#9298b8;--blue:#548cff;--purple:#a45cff;--cyan:#5ce1ff;--grad:linear-gradient(115deg,var(--blue),var(--purple)}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(55rem 35rem at 18% -10%,#3154a52b,transparent),var(--bg);color:var(--text);font:15px "Space Grotesk",sans-serif;height:100vh;overflow:hidden}
+button,input,textarea,select{font:inherit}button{cursor:pointer;color:inherit}.app{height:100vh;display:grid;grid-template-columns:250px 1fr}
+.sidebar{border-right:1px solid var(--line);background:#090a14d9;padding:18px 14px;display:flex;flex-direction:column;min-height:0}
+.brand{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:700;padding:5px 8px 24px}.mark{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;box-shadow:0 0 25px #6688ff55}.mark:after{content:"";width:11px;height:11px;border:2px solid white;border-radius:3px}
+.new{width:100%;border:1px solid #638aff66;background:#548cff17;padding:11px;border-radius:10px;text-align:left;font-weight:600}.section-label{font:11px "JetBrains Mono";color:#777e9e;letter-spacing:.12em;margin:25px 8px 9px}.agent-list{display:grid;gap:5px}.agent{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid transparent;border-radius:9px;background:transparent;text-align:left;color:var(--muted)}.agent:hover,.agent.active{background:#ffffff0b;border-color:var(--line);color:var(--text)}.dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px currentColor}.agent small{display:block;color:var(--muted);font-size:11px}.chat-history{overflow:auto;display:grid;gap:4px}.history-item{background:none;border:0;color:var(--muted);padding:8px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:7px}.history-item:hover{background:#ffffff0a;color:var(--text)}.side-bottom{margin-top:auto;border-top:1px solid var(--line);padding:14px 5px 0;color:var(--muted);font-size:12px}.status{display:flex;align-items:center;gap:8px}.status .dot{background:#f3b64d}.status.ok .dot{background:#53dfa4}
+main{display:flex;flex-direction:column;min-width:0;min-height:0}.top{height:65px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:#090a14a8}.top-title{font-weight:600}.top-right{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px}.model{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:8px 10px;border-radius:8px;max-width:220px}
+.workspace{display:flex;flex-direction:column;flex:1;min-height:0;max-width:1050px;width:100%;margin:auto;padding:26px 34px 20px}.welcome{margin:auto;text-align:center;max-width:620px}.welcome .eyebrow{font:12px "JetBrains Mono";color:var(--cyan);letter-spacing:.14em}.welcome h1{font-size:clamp(34px,5vw,56px);line-height:1.05;margin:15px 0}.welcome h1 span{background:var(--grad);background-clip:text;color:transparent}.welcome p{color:var(--muted);line-height:1.7}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:28px}.hint{border:1px solid var(--line);background:#ffffff06;border-radius:12px;padding:13px;text-align:left;color:var(--muted);font-size:12px}.hint b{display:block;color:var(--text);font-size:13px;margin-bottom:4px}
+.messages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:18px;padding:5px 3px 22px}.msg{display:flex;gap:12px;max-width:850px;line-height:1.7}.avatar{width:30px;height:30px;flex:0 0 30px;border-radius:9px;background:var(--panel2);display:grid;place-items:center;font-size:12px;color:var(--cyan)}.msg.user .avatar{background:#26365e;color:#b9ceff}.msg-body{min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}.msg-head{font-size:12px;color:var(--muted);margin-bottom:4px}.msg.assistant .msg-body{color:#e5e8ff}.msg-body code{font-family:"JetBrains Mono";font-size:12px;background:#ffffff12;padding:2px 5px;border-radius:4px}
+.composer{border:1px solid #ffffff25;background:#111425;border-radius:15px;padding:12px;box-shadow:0 12px 50px #0006}.composer textarea{width:100%;resize:vertical;min-height:65px;max-height:180px;border:0;outline:0;background:transparent;color:var(--text);padding:5px;font-size:15px}.composer-bottom{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px}.send{background:var(--grad);border:0;border-radius:9px;padding:9px 17px;font-weight:700}.send:disabled{opacity:.4;cursor:not-allowed}.note{text-align:center;color:#686e8b;font-size:11px;padding-top:9px}
+.empty{color:var(--muted);font-size:13px;padding:8px}.toast{position:fixed;bottom:20px;right:20px;background:#20243a;border:1px solid var(--line);padding:12px 16px;border-radius:10px;display:none;max-width:420px;z-index:5}
+@media(max-width:760px){.app{grid-template-columns:64px 1fr}.sidebar{padding:12px 7px}.brand{font-size:0;padding:5px 8px 20px}.new{font-size:0;text-align:center}.new:after{content:"+";font-size:20px}.section-label,.agent span:not(.dot),.chat-history,.side-bottom{display:none}.agent{justify-content:center;padding:12px 5px}.agent .dot{width:10px;height:10px}.top{padding:0 13px}.workspace{padding:18px 13px}.cards{grid-template-columns:1fr}.welcome{padding:10px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><i class="mark"></i>RoboAI</div>
+  <button class="new" id="newChat">＋　New conversation</button>
+  <div class="section-label">SPECIALIST AGENTS</div>
+  <div class="agent-list" id="agents">
+    <button class="agent active" data-agent="lead"><i class="dot"></i><span>Lead<small>Planning & coordination</small></span></button>
+    <button class="agent" data-agent="scripter"><i class="dot"></i><span>Scripter<small>Roblox Luau</small></span></button>
+    <button class="agent" data-agent="builder"><i class="dot"></i><span>Builder<small>World & environment</small></span></button>
+    <button class="agent" data-agent="ui"><i class="dot"></i><span>UI Designer<small>Interfaces & UX</small></span></button>
+    <button class="agent" data-agent="tester"><i class="dot"></i><span>Tester<small>QA & code review</small></span></button>
+    <button class="agent" data-agent="optimizer"><i class="dot"></i><span>Optimizer<small>Performance</small></span></button>
+  </div>
+  <div class="section-label">RECENT CHATS</div>
+  <div class="chat-history" id="history"><div class="empty">Your saved chats appear here.</div></div>
+  <div class="side-bottom"><div class="status" id="connection"><i class="dot"></i><span>Checking local Ollama…</span></div><div style="margin-top:8px">Local-first · Your chats stay on this PC</div></div>
+</aside>
+<main>
+  <header class="top"><div class="top-title" id="currentTitle">New conversation</div><div class="top-right"><span>MODEL</span><select class="model" id="model"><option value="">Checking Ollama…</option></select></div></header>
+  <div class="workspace">
+    <section class="welcome" id="welcome">
+      <div class="eyebrow">YOUR LOCAL ROBLOX AI TEAM</div>
+      <h1>Build better games<br><span>with your AI team.</span></h1>
+      <p>Choose a specialist, describe what you're building, and get help powered by a model running locally through Ollama.</p>
+      <div class="cards"><div class="hint"><b>Ask the Scripter</b>Build a secure coin collection system.</div><div class="hint"><b>Ask the Builder</b>Plan a simulator map layout.</div><div class="hint"><b>Ask the Tester</b>Review a Luau script for bugs.</div></div>
+    </section>
+    <section class="messages" id="messages" hidden></section>
+    <div class="composer">
+      <textarea id="prompt" placeholder="Describe a Roblox feature or paste your Luau code…" rows="2"></textarea>
+      <div class="composer-bottom"><span id="agentHint">Lead · planning & coordination</span><button class="send" id="send">Send ↑</button></div>
+    </div>
+    <div class="note">RoboAI uses your local Ollama installation. AI output can be wrong — review scripts before using them in Roblox Studio.</div>
+  </div>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const $ = id => document.getElementById(id);
+let currentAgent = "lead", currentChat = null, busy = false;
+const labels = {lead:"Lead · planning & coordination",scripter:"Scripter · Roblox Luau",builder:"Builder · world & environment",ui:"UI Designer · interfaces & UX",tester:"Tester · QA & code review",optimizer:"Optimizer · performance"};
+function toast(message){$("toast").textContent=message;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",4200)}
+async function api(url,options={}){const r=await fetch(url,{headers:{"Content-Type":"application/json"},...options});const data=await r.json();if(!r.ok)throw new Error(data.error||"Request failed");return data}
+async function refreshHealth(){
+  try{
+    const h=await api("/api/health");const s=$("connection");s.classList.toggle("ok",h.ollama);
+    s.querySelector("span").textContent=h.ollama?"Ollama connected":"Ollama not connected";
+    const select=$("model");select.innerHTML="";
+    if(h.models.length){h.models.forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=m;select.appendChild(o)})}
+    else{const o=document.createElement("option");o.value="";o.textContent="No models found";select.appendChild(o)}
+    if(!h.ollama)toast("Start Ollama on this PC, then refresh this page. "+(h.error||""));
+  }catch(e){$("connection").querySelector("span").textContent="Local server unavailable";toast(e.message)}
+}
+function setAgent(agent){currentAgent=agent;document.querySelectorAll(".agent").forEach(b=>b.classList.toggle("active",b.dataset.agent===agent));$("agentHint").textContent=labels[agent]}
+async function loadHistory(){
+  try{const chats=await api("/api/chats");const el=$("history");el.innerHTML="";if(!chats.length){el.innerHTML='<div class="empty">Your saved chats appear here.</div>';return}
+    chats.forEach(c=>{const b=document.createElement("button");b.className="history-item";b.textContent=c.title;b.title=c.title;b.onclick=()=>openChat(c.id);el.appendChild(b)})
+  }catch(e){toast(e.message)}
+}
+async function newChat(){
+  try{currentChat=await api("/api/chats",{method:"POST",body:JSON.stringify({title:"New conversation"})});$("currentTitle").textContent=currentChat.title;showMessages([]);await loadHistory();$("prompt").focus()}
+  catch(e){toast(e.message)}
+}
+function showMessages(messages){
+  $("welcome").hidden=messages.length>0;$("messages").hidden=messages.length===0;$("messages").innerHTML="";
+  messages.forEach(m=>addMessage(m.role,m.content,m.agent));
+}
+function addMessage(role,content,agent){
+  $("welcome").hidden=true;$("messages").hidden=false;
+  const wrap=document.createElement("div");wrap.className="msg "+(role==="user"?"user":"assistant");
+  const avatar=document.createElement("div");avatar.className="avatar";avatar.textContent=role==="user"?"YOU":"AI";
+  const body=document.createElement("div");body.className="msg-body";
+  const head=document.createElement("div");head.className="msg-head";head.textContent=role==="user"?"You":(labels[agent]||"RoboAI");
+  const text=document.createElement("div");text.textContent=content;body.append(head,text);wrap.append(avatar,body);$("messages").appendChild(wrap);$("messages").scrollTop=$("messages").scrollHeight;
+}
+async function openChat(id){try{currentChat=await api("/api/chats/"+id);$("currentTitle").textContent=currentChat.title;setAgent(currentChat.agent||"lead");showMessages(currentChat.messages||[])}catch(e){toast(e.message)}}
+async function send(){
+  const message=$("prompt").value.trim();if(!message||busy)return;
+  if(!$("model").value){toast("Install or start an Ollama model before chatting.");return}
+  if(!currentChat)await newChat();if(!currentChat)return;
+  busy=true;$("send").disabled=true;$("send").textContent="Working…";$("prompt").value="";
+  addMessage("user",message,currentAgent);
+  const wait=document.createElement("div");wait.className="msg assistant";wait.id="thinking";wait.innerHTML='<div class="avatar">AI</div><div class="msg-body"><div class="msg-head">RoboAI is thinking locally…</div><div>Generating response</div></div>';$("messages").appendChild(wait);
+  try{
+    const result=await api("/api/chat",{method:"POST",body:JSON.stringify({chatId:currentChat.id,agent:currentAgent,model:$("model").value,message})});
+    wait.remove();addMessage("assistant",result.answer,currentAgent);currentChat=result.chat;$("currentTitle").textContent=currentChat.title;await loadHistory();
+  }catch(e){wait.remove();addMessage("assistant","Error: "+e.message,currentAgent);toast(e.message)}
+  finally{busy=false;$("send").disabled=false;$("send").textContent="Send ↑";$("prompt").focus()}
+}
+document.querySelectorAll(".agent").forEach(b=>b.addEventListener("click",()=>setAgent(b.dataset.agent)));
+$("newChat").addEventListener("click",newChat);$("send").addEventListener("click",send);
+$("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+refreshHealth();loadHistory();setInterval(refreshHealth,30000);
+</script>
+</body></html>
